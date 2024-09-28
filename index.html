@@ -1,75 +1,28 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" >
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-    content="with=device-width, user-scable=no. initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Whell Fortune</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200;500&display=swap')
-        
-        *{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family:'Montserrat', sans-serif;
-            font-weight: 200;
-            color: var(--tg-theme-text-color);
-            background: var(--tg-tgeme-bg-color);
-        }
-        
-        #main {
-            width: 100%;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        h1 {
-            margin-top: 50px;
-            margin-bottom: 10px;
-        }
-        
-        img{
-            width: 70px;
-            margin: 30px auto;
-        }
-        
-        p{
-            width: 350px;
-            margin: 0 auto;
-        }
-        
-        button{
-            border: 0;
-            border-radius: 5px;
-            margin-top: 50px;
-            height: 60px;
-            weidth: 200px;
-            font-size: 20px;
-            font-weight:500;
-            cursor: pointer;
-            transition: all 500ms ease;
-            color: var(--tg-theme-button-color);
-            background: var(--tg-theme-button-text-color);
-        }
-        
-        button:hover {
-            background: var(--tg-theme-secondary-bg-color);
-        }
+  <meta charset="UTF-8">
+  <title>Колесо удачи</title>
+  <!-- используем всю ширину экрана -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- подключаем стили -->
+  <link rel="stylesheet" href="style.css">
 
-    </style>
 </head>
 <body>
-    <div id="main">
-        <h1>Колесо Удачи</h1>
-        <img src="https://cdn.icon-icons.com/icons2/3582/PNG/512/game_gamble_lotto_wheel_fortune_icon_225887.png">
-        <p>Нажмите на кнопку 'Крутить' снизу</p>
-        <button id="Spin">Крутить</button>
-    </div>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- главный блок -->
+<div class="deal-wheel">
+  <!-- блок с призами -->
+  <ul class="spinner"></ul>
+  <!-- язычок барабана -->
+  <div class="ticker"></div>
+  <!-- кнопка -->
+  <button class="btn-spin">Испытай удачу</button>
+</div>
+  <!-- подключаем скрипт -->
+  <script  src="script.js"></script>
+     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 </body>
 </html>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
