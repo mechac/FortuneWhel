@@ -24,11 +24,12 @@
       let tg = window.telegram.WebApp;
       let spin = document.getElementById("spin");
       let order = document.getElementById("order");
+      tg.expand();
 
       spin.addEventListener("click", () => {
         document.getElementById("main").style.display = "none";
         document.getElementById("form").style.display = "block";
-        document.getElementById("user_name").value = tg.initDataUnsafe.user.first_name + " " + tg.initDataUnsafe.user.id;
+        document.getElementById("user_name").value = tg.initDataUnsafe.user.first_name;
       });
 
       order.addEventListener("click", () => {
