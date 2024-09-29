@@ -1,41 +1,38 @@
 <!DOCTYPE html>
-<html lang="ru" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Колесо Удачи</title>
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <div id="main">
-      <h1>Колесо Удачи</h1>
-      <p>У вас билетиков: </p>
-      <button id="spin">Крутить</button>
-    </div>
-    <form id="form">
-      <input type="text" placeholder="Имя" id="user_name">
-      <input type="text" placeholder="Email" id="user_email">
-      <input type="text" placeholder="Телефое" id="user_phone">
-      <button id="order">Забрать</button>
-    </form>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script >
+<html lang="ru" >
+<head>
+  <meta charset="UTF-8">
+  <title>Колесо Удачи</title>
+  <!-- используем всю ширину экрана -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- подключаем стили -->
+  <link rel="stylesheet" href="CSS/style.css">
+
+</head>
+<body>
+  <h1 type="text">Колесо Удачи</h1>
+<!-- главный блок -->
+<div id="wheelOfFortune">
+     <canvas id="wheel" width="300" height="300"></canvas>
+     <div id="spin"></div>
+</div>
+  <p type="tickets">У вас билетов: </p>
+  <!-- подключаем скрипт -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script  src="JS/main.js"></script>
+  <script >
       let tg = window.telegram.WebApp;
       let spin = document.getElementById("spin");
       let order = document.getElementById("order");
       tg.expand();
+      document.getElementById("user_name").value = tg.initDataUnsafe.user.first_name;
 
-      spin.addEventListener("click", () => {
-        document.getElementById("main").style.display = "none";
-        document.getElementById("form").style.display = "block";
-        document.getElementById("user_name").value = tg.initDataUnsafe.user.first_name;
-      });
 
       order.addEventListener("click", () => {
         tg.close();
       });
 
     </script>
-  </body>
+
+</body>
 </html>
