@@ -17,10 +17,12 @@ body {
 
 .text{
   font-family: monospace;
+  color: yellow;
 }
 
 .tickets{
   font-family: monospace;
+  color: yellow;
 }
 
 #wheelOfFortune {
