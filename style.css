@@ -1,0 +1,69 @@
+
+
+/* делаем везде так, чтобы свойства width и height задавали не размеры контента, а размеры блока */
+* {
+  box-sizing: border-box;
+}
+
+/* общие настройки страницы */
+body {
+  /* подключаем сетку */
+  display: grid;
+  /* ставим всё по центру */
+  place-items: center;
+  /* если что-то не помещается на своё место — скрываем то, что не поместилось */
+  overflow: hidden;
+}
+
+.text{
+  font-family: monospace;
+}
+
+.tickets{
+  font-family: monospace;
+}
+
+#wheelOfFortune {
+    display: inline-flex;
+    position: relative;
+    overflow: hidden;
+    color: none;
+    background: none;
+    border: 3px solid #ffffff5e;
+    border-radius: 100%;
+  }
+
+  #wheel {
+    --size: clamp(250px, 80vmin, 700px);
+    display: block;
+  }
+
+  #spin {
+    --size: clamp(250px, 80vmin, 700px);
+    font: 1.5rem/0 sans-serif;
+    user-select: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30%;
+    height: 30%;
+    margin: -15%;
+    background: #ffffff5e;
+    color: #ffffff5e;
+    box-shadow: 0 0 0 8px currentColor, 0 0px 15px 5px rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    transition: 0.8s;
+  }
+
+  #spin::after {
+    content: "";
+    position: absolute;
+    top: -17px;
+    border: 10px solid transparent;
+    border-bottom-color: currentColor;
+    border-top: none;
+  }
