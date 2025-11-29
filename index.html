@@ -1,38 +1,243 @@
-<!DOCTYPE html>
-<html lang="ru" >
+<!doctype html>
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Колесо Удачи</title>
-  <!-- используем всю ширину экрана -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- подключаем стили -->
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <title>Mini App — Тренажер для глаз</title>
+  <style>
+    :root{
+      --bg:#0f1724; /* deep navy */
+      --card:#0b1220;
+      --accent:#ff7a59; /* warm orange */
+      --muted:#9aa4b2;
+      --glass: rgba(255,255,255,0.04);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;color:#e6eef6;background:linear-gradient(180deg,var(--bg),#071022);-webkit-font-smoothing:antialiased}
 
+    /* app frame */
+    .app{max-width:420px;margin:18px auto;padding:14px;}
+    .panel{background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015));border-radius:18px;padding:12px;box-shadow:0 6px 30px rgba(2,6,23,0.6);}
+
+    /* header with avatar and streak */
+    .header{display:flex;align-items:center;justify-content:space-between;padding:10px 6px}
+    .user{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
+    .avatar{width:64px;height:64px;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#22334a,#1a2740);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    .avatar img{width:100%;height:100%;object-fit:cover}
+    .username{font-weight:600;color:#ffffff;margin-top:6px}
+    .sub{font-size:12px;color:var(--muted)}
+
+    .streak{display:flex;gap:6px;align-items:center}
+    .fire{font-size:20px}
+    .streak-count{font-size:12px;color:var(--muted)}
+
+    /* main area */
+    .stage{height:520px;min-height:380px;border-radius:14px;margin-top:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+
+    /* eye */
+    .eye{width:210px;height:210px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff 0%,#eef6ff 10%,#cfe6ff 30%,#8fb7ff 80%,#4a7bd8 100%);box-shadow:inset 0 -10px 30px rgba(0,0,0,0.25), 0 8px 30px rgba(2,6,23,0.5);display:flex;align-items:center;justify-content:center;position:relative}
+    .sclera{width:86%;height:86%;border-radius:50%;background:#ffffff;display:flex;align-items:center;justify-content:center;position:relative}
+    .pupil{width:36%;height:36%;border-radius:50%;background:linear-gradient(180deg,#0b1220,#101826);box-shadow:0 8px 22px rgba(2,6,23,0.6);position:absolute;transform:translate(-50%,-50%);left:50%;top:50%}
+    .pupil::after{content:'';position:absolute;left:22%;top:18%;width:26%;height:26%;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,0.25),rgba(255,255,255,0.04))}
+
+    /* moving target */
+    .target{position:absolute;width:34px;height:34px;border-radius:50%;background:var(--accent);box-shadow:0 10px 28px rgba(255,122,89,0.18),0 2px 6px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
+
+    /* controls */
+    .controls{display:flex;gap:10px;align-items:center;justify-content:center;padding:14px}
+    button{background:linear-gradient(180deg,var(--accent),#ff5b38);border:none;color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;box-shadow:0 8px 20px rgba(255,122,89,0.12);cursor:pointer}
+    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:10px 14px}
+
+    .footer-note{font-size:12px;color:var(--muted);text-align:center;padding:8px}
+
+    /* small screen tweaks */
+    @media (max-width:420px){.app{padding:8px}.eye{width:170px;height:170px}.avatar{width:56px;height:56px}}
+  </style>
 </head>
 <body>
-  <h1 type="text">Колесо Удачи</h1>
-<!-- главный блок -->
-<div id="wheelOfFortune">
-     <canvas id="wheel" width="300" height="300"></canvas>
-     <div id="spin"></div>
-</div>
-  <p type="tickets">У вас билетов: </p>
-  <!-- подключаем скрипт -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script  src="main.js"></script>
-  <script >
-      let tg = window.telegram.WebApp;
-      let spin = document.getElementById("spin");
-      let order = document.getElementById("order");
-      tg.expand();
-      document.getElementById("user_name").value = tg.initDataUnsafe.user.first_name;
+  <div class="app">
+    <div class="panel">
+      <div class="header">
+        <div style="width:64px"></div>
+        <div class="user" id="userBlock">
+          <div class="avatar" id="avatarWrap"><img id="avatarImg" src="" alt="avatar" onerror="this.style.display='none'"></div>
+          <div class="username" id="username">Гость</div>
+          <div class="sub" id="userSub">@username</div>
+        </div>
+        <div class="streak" title="Дни подряд">
+          <div id="fires"></div>
+          <div class="streak-count" id="streakCount">0 дней</div>
+        </div>
+      </div>
+
+      <div class="stage" id="stage">
+        <div class="eye" id="eye">
+          <div class="sclera">
+            <div class="pupil" id="pupil"></div>
+          </div>
+        </div>
+        <div class="target" id="target" style="left:20%;top:30%;display:none">●</div>
+      </div>
+
+      <div class="controls">
+        <button id="startBtn">Начать тренировку</button>
+        <button class="ghost" id="stopBtn" style="display:none">Закончить тренировку</button>
+      </div>
+
+      <div class="footer-note">Следите глазами за точкой — не двигайте головой. Короткие серии по 30–60 секунд.</div>
+    </div>
+  </div>
+
+  <script>
+    // --- Telegram WebApp helper (works when запущено как Telegram Mini App / Web App) ---
+    const tg = window.Telegram?.WebApp || null;
+    const user = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
+
+    function safeText(s){return s? String(s):''}
+    const avatarImg = document.getElementById('avatarImg');
+    const usernameEl = document.getElementById('username');
+    const userSub = document.getElementById('userSub');
+
+    if(user){
+      const name = [user.first_name, user.last_name].filter(Boolean).join(' ')
+      usernameEl.textContent = name || user.username || 'Пользователь'
+      userSub.textContent = user.username?('@'+user.username):('id:'+user.id)
+      if(user.photo_url){avatarImg.src = user.photo_url}
+      else{avatarImg.style.display='none'}
+    } else {
+      // Если нет Telegram (локальный тест)
+      avatarImg.src = '';
+      usernameEl.textContent = 'Гость (локально)';
+      userSub.textContent = '—';
+    }
+
+    // --- Streak (localStorage-based simple implementation) ---
+    const STREAK_KEY = 'eye_trainer_streak_v1';
+    function loadStreak(){
+      try{const raw = localStorage.getItem(STREAK_KEY); if(!raw) return {count:0,last:null}; return JSON.parse(raw)}catch(e){return {count:0,last:null}}
+    }
+    function saveStreak(s){localStorage.setItem(STREAK_KEY,JSON.stringify(s))}
+
+    function updateStreak(didToday){
+      const s = loadStreak();
+      const today = new Date().toISOString().slice(0,10);
+      if(didToday){
+        if(s.last===today) return s; // already recorded
+        // if yesterday was last, increment, else reset to 1
+        const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
+        if(s.last===yesterday) s.count = (s.count||0)+1; else s.count = 1;
+        s.last = today; saveStreak(s);
+        return s;
+      }
+      return s;
+    }
+
+    function renderStreak(){
+      const s = loadStreak();
+      const firesWrap = document.getElementById('fires');
+      firesWrap.innerHTML = '';
+      const n = Math.min(5, s.count||0);
+      for(let i=0;i<n;i++){ const el = document.createElement('div'); el.className='fire'; el.textContent='🔥'; firesWrap.appendChild(el)}
+      document.getElementById('streakCount').textContent = (s.count||0)+ ' дней';
+    }
+    renderStreak();
 
 
-      order.addEventListener("click", () => {
-        tg.close();
-      });
+    // --- Eye tracking simulation ---
+    const stage = document.getElementById('stage');
+    const eye = document.getElementById('eye');
+    const pupil = document.getElementById('pupil');
+    const target = document.getElementById('target');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
 
-    </script>
+    let running = false;
+    let animationId = null;
+    let startTime = 0;
 
+    // target motion parameters
+    const path = {t:0, speed:0.6};
+    function randRange(a,b){return a + Math.random()*(b-a)}
+    function updateTargetPosition(now){
+      // movement: Lissajous-like for smoothness
+      const w = stage.clientWidth, h = stage.clientHeight;
+      const cx = w/2, cy = h/2;
+      const a = Math.max(50, cx - 60);
+      const b = Math.max(40, cy - 60);
+      path.t += path.speed * 0.008;
+      const x = cx + Math.sin(path.t*1.2)*a;
+      const y = cy + Math.sin(path.t*0.9 + Math.PI/3)*b;
+      target.style.left = (x - 17) + 'px';
+      target.style.top = (y - 17) + 'px';
+    }
+
+    function updatePupil(){
+      const pupilRect = pupil.getBoundingClientRect();
+      const scleraRect = eye.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+
+      const scleraCenter = {x: scleraRect.left + scleraRect.width/2, y: scleraRect.top + scleraRect.height/2};
+      const t = {x: targetRect.left + targetRect.width/2, y: targetRect.top + targetRect.height/2};
+      const dx = t.x - scleraCenter.x; const dy = t.y - scleraCenter.y;
+      const angle = Math.atan2(dy, dx);
+      // max offset within sclera
+      const maxOffset = (scleraRect.width/2) - (pupilRect.width/2) - 8;
+      const dist = Math.min(maxOffset, Math.hypot(dx,dy)/8 + 6);
+      const px = scleraCenter.x + Math.cos(angle)*dist;
+      const py = scleraCenter.y + Math.sin(angle)*dist;
+      // place pupil (use transform relative to its parent)
+      const parentRect = scleraRect; // pupil positioned absolute inside .sclera
+      const left = ( (px - parentRect.left) );
+      const top = ( (py - parentRect.top) );
+      pupil.style.left = left + 'px';
+      pupil.style.top = top + 'px';
+      pupil.style.transform = 'translate(-50%,-50%)';
+    }
+
+    function loop(ts){
+      if(!running) return;
+      if(!startTime) startTime = ts;
+      updateTargetPosition(ts);
+      updatePupil();
+      animationId = requestAnimationFrame(loop);
+    }
+
+    startBtn.addEventListener('click',()=>{
+      target.style.display='flex';
+      startBtn.style.display='none'; stopBtn.style.display='inline-block';
+      running = true; startTime = 0; path.t = 0;
+      animationId = requestAnimationFrame(loop);
+    });
+
+    stopBtn.addEventListener('click',()=>{
+      running = false; target.style.display='none'; startBtn.style.display='inline-block'; stopBtn.style.display='none';
+      if(animationId) cancelAnimationFrame(animationId);
+      // mark streak for today
+      updateStreak(true);
+      renderStreak();
+    });
+
+    // responsiveness: recalc pupil position on resize
+    window.addEventListener('resize',()=>{ if(target.style.display!=='none') updatePupil() })
+
+    // initial placement of target near center
+    (function init(){
+      // place target center
+      const w=stage.clientWidth,h=stage.clientHeight; target.style.left=(w*0.3)+'px'; target.style.top=(h*0.3)+'px';
+      // small entrance animation
+      target.style.opacity=0; target.style.transform='scale(0.6)';
+      setTimeout(()=>{target.style.transition='all 360ms cubic-bezier(.2,.9,.3,1)'; target.style.opacity=1; target.style.transform='scale(1)';},120);
+    })();
+
+    // Optional: provide Telegram MainButton integration (if available)
+    if(tg){
+      try{
+        tg.MainButton.text = 'Начать';
+        tg.MainButton.show();
+        tg.MainButton.onClick(()=>{ startBtn.click(); });
+      }catch(e){/* ignore */}
+    }
+
+  </script>
 </body>
 </html>
